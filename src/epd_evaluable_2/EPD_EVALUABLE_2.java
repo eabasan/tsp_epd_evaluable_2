@@ -90,6 +90,7 @@ public class EPD_EVALUABLE_2 {
         return tour;
     }
 
+
     public static int[] algVoraz(double[][] distancias) {
         int numCiudades = distancias.length;
         boolean[] visitadas = new boolean[numCiudades]; //Para saber que ciudades han sido ya visitadas
@@ -115,7 +116,6 @@ public class EPD_EVALUABLE_2 {
             visitadas[actual] = true; //Marca la ciudad como visitada
         }
         return camino;
-
     }
 
     public static void main(String[] args) {

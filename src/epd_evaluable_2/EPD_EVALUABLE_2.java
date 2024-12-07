@@ -133,12 +133,57 @@ public class EPD_EVALUABLE_2 {
         int[] parteIzquierda = algDivideYVenceras(distancias, ini, mid);
         int[] parteDerecha = algDivideYVenceras(distancias, mid + 1, fin);
 
-        // Combinar los resultados (concatenar los caminos)
-        int[] camino = new int[parteIzquierda.length + parteDerecha.length];
-        System.arraycopy(parteIzquierda, 0, camino, 0, parteIzquierda.length);
-        System.arraycopy(parteDerecha, 0, camino, parteIzquierda.length, parteDerecha.length);
+        // Combinar los resultados
+        return combina(parteIzquierda, parteDerecha, distancias);
+    }
 
-        return camino;
+    public static int[] combina(int[] parteIzquierda, int[] parteDerecha, double[][] distancias) {
+        int n = parteIzquierda.length; //Numero de ciudades en la parte izquierda
+        int m = parteDerecha.length; //Numero de ciudades en la parte derecha
+
+        // Encontrar el mejor punto de conexión entre ambas partes
+        double minDistancia = Double.MAX_VALUE;
+        int mejorIzq = -1, mejorDer = -1; // Variables para almacenar las ciudades con la menor distancia entre izquierda y derecha
+
+        // Iteramos por todas las ciudades de la parte izquierda y derecha
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                // Calculamos la distancia entre cada ciudad de la izquierda y cada ciudad de la derecha
+                double dist = distancias[parteIzquierda[i]][parteDerecha[j]];
+                // Si encontramos una distancia menor, actualizamos los mejores puntos de conexión
+                if (dist < minDistancia) {
+                    minDistancia = dist;
+                    mejorIzq = i; //Ciudad en la izquierda
+                    mejorDer = j; //Ciudad en la derecha
+                }
+            }
+        }
+
+        // Construir el camino combinado
+        int[] camino = new int[n + m];
+        int index = 0;
+
+        // Añadir la parte izquierda desde el inicio hasta la mejor ciudad
+        for (int i = 0; i <= mejorIzq; i++) {
+            camino[index++] = parteIzquierda[i]; // Añadimos las ciudades de izquierda al camino
+        }
+
+        // Añadir la parte derecha desde la mejor ciudad en adelante
+        for (int j = mejorDer; j < m; j++) {
+            camino[index++] = parteDerecha[j]; // Añadimos las ciudades de derecha al camino
+        }
+
+        // Añadir la parte derecha desde el principio hasta la mejor ciudad
+        for (int j = 0; j < mejorDer; j++) {
+            camino[index++] = parteDerecha[j]; // Añadimos las ciudades restantes de derecha
+        }
+
+        // Añadir la parte izquierda desde la mejor ciudad + 1 hasta el final
+        for (int i = mejorIzq + 1; i < n; i++) {
+            camino[index++] = parteIzquierda[i]; // Añadimos las ciudades restantes de izquierda
+        }
+
+        return camino; //Devolvemos el camino combinado
     }
 
     public static void main(String[] args) {

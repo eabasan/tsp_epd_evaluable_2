@@ -24,16 +24,18 @@ public class EPD_EVALUABLE_2 {
             boolean isCoordSection = false;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                
+
                 //Iniciar lectura en la sección de coordenadas
                 if (line.equals("NODE_COORD_SECTION")) {
                     isCoordSection = true;
                     continue;
                 }
-                
+
                 // Leer las coordenadas de las ciudades
                 if (isCoordSection) {
-                    if (line.equals("EOF")) break; // Termina si llega al final del archivo
+                    if (line.equals("EOF")) {
+                        break; // Termina si llega al final del archivo
+                    }
                     String[] parts = line.split("\\s+");
                     int id = Integer.parseInt(parts[0]);
                     double x = Double.parseDouble(parts[1]);
@@ -47,8 +49,8 @@ public class EPD_EVALUABLE_2 {
 
         int numCiudades = ciudades.size();
         double[][] distancias = new double[numCiudades][numCiudades];
-        
-         // Calcula la distancia entre cada par de ciudades
+
+        // Calcula la distancia entre cada par de ciudades
         for (int i = 0; i < numCiudades; i++) {
             for (int j = 0; j < numCiudades; j++) {
                 distancias[i][j] = calculaDistancia(ciudades.get(i), ciudades.get(j));
@@ -56,6 +58,7 @@ public class EPD_EVALUABLE_2 {
         }
         return distancias;
     }
+
     public static double calculaDistancia(double[] ciudad1, double[] ciudad2) {
         return Math.sqrt(Math.pow(ciudad1[1] - ciudad2[1], 2) + Math.pow(ciudad1[2] - ciudad2[2], 2));
     }
@@ -86,10 +89,101 @@ public class EPD_EVALUABLE_2 {
         }
         return tour;
     }
-    public static void main(String[] args) {
-        // TODO code application logic here
-        //soy fran
-        // soy javi
+
+    public static int[] algVoraz(double[][] distancias) {
+        int numCiudades = distancias.length;
+        boolean[] visitadas = new boolean[numCiudades]; //Para saber que ciudades han sido ya visitadas
+        int[] camino = new int[numCiudades]; //Guarda el orden de las ciudades que vamos a visitar
+
+        //Inicializamos la primera ciudad como visitada y la añadimos al camino
+        int actual = 0;
+        visitadas[actual] = true;
+        camino[0] = actual;
+
+        for (int i = 1; i < numCiudades; i++) {
+            int siguiente = -1; //Va a ir guardando la siguiente ciudad para visitar
+            double minDistancia = Double.MAX_VALUE; //Va a ir guardando la distancia minima encontrada
+            for (int j = 0; j < numCiudades; j++) {
+                //Encuentra la ciudad no visitada mas cercana
+                if (!visitadas[j] && distancias[actual][j] < minDistancia) {
+                    siguiente = j;
+                    minDistancia = distancias[actual][j];
+                }
+            }
+            actual = siguiente; //Actualiza la ciudad siguiente
+            camino[i] = actual; //Añade la ciudad al camino
+            visitadas[actual] = true; //Marca la ciudad como visitada
+        }
+        return camino;
     }
-    
+
+    public static int[] algDivideYVenceras(double[][] distancias, int ini, int fin) {
+        if (fin - ini == 1) {
+            // Caso base: Si hay solo 2 ciudades, devolverlas como camino
+            return new int[]{ini, fin};
+        } else if (fin - ini == 0) {
+            // Caso base: Si hay solo 1 ciudad, devolver esa única ciudad
+            return new int[]{ini};
+        }
+
+        // Dividir el problema en dos mitades
+        int mid = (ini + fin) / 2;
+
+        // Resolver ambas mitades recursivamente
+        int[] parteIzquierda = algDivideYVenceras(distancias, ini, mid);
+        int[] parteDerecha = algDivideYVenceras(distancias, mid + 1, fin);
+
+        // Combinar los resultados (concatenar los caminos)
+        int[] camino = new int[parteIzquierda.length + parteDerecha.length];
+        System.arraycopy(parteIzquierda, 0, camino, 0, parteIzquierda.length);
+        System.arraycopy(parteDerecha, 0, camino, parteIzquierda.length, parteDerecha.length);
+
+        return camino;
+    }
+
+    public static void main(String[] args) {
+        // Ruta relativa al archivo .tsp
+        String file = "src/data/a280.tsp"; // Puedes cambiar la ruta dependiendo del archivo que uses
+        // Otros ejemplos de rutas de archivos .tsp
+        // String file = "src/data/berlin52.tsp";
+        // String file = "src/data/kroA100.tsp";
+        // String file = "src/data/kroA150.tsp";
+        // String file = "src/data/kroA200.tsp";
+        // String file = "src/data/vm1084.tsp";
+        // String file = "src/data/vm1748.tsp";
+
+        // Inicializar la matriz de distancias desde el archivo TSP
+        double[][] distancias = inicializarMatrizDistanciaDesdeTSP(file);
+
+        // Medir el tiempo de ejecución y calcular el coste para el algoritmo voraz 
+        long inicio = System.nanoTime();
+        int[] caminoVoraz = algVoraz(distancias);  // Aquí se llama al algoritmo voraz
+        long fin = System.nanoTime();
+        long tiempoTotal = (fin - inicio) / 1000000;  // Convertir a milisegundos 
+        double costeTotalVoraz = getDistanciaTotal(distancias, caminoVoraz);  // Obtener el coste total
+        System.out.println("Coste total del camino voraz: " + costeTotalVoraz);
+        System.out.println("Tiempo de ejecución: " + tiempoTotal + " ms");  // Imprimir el tiempo de ejecución
+        System.out.print("Camino voraz: ");
+        for (int ciudad : caminoVoraz) {
+            System.out.print(ciudad + " ");
+        }
+        System.out.println();
+
+        System.out.println("\n---- Algoritmo Divide y Vencerás ----");
+        inicio = System.nanoTime();
+        int[] caminoDivide = algDivideYVenceras(distancias, 0, distancias.length - 1); // Ahora devuelve el camino
+        fin = System.nanoTime();
+
+        long tiempoDivide = (fin - inicio) / 1000000;  // Convertir a milisegundos
+        double costeTotalDivide = getDistanciaTotal(distancias, caminoDivide);  // Calcular el coste total
+
+        System.out.println("Coste total divide y vencerás: " + costeTotalDivide);
+        System.out.println("Tiempo de ejecución divide y vencerás: " + tiempoDivide + " ms");
+        System.out.print("Camino divide y vencerás: ");
+        for (int ciudad : caminoDivide) {
+            System.out.print(ciudad + " ");
+        }
+        System.out.println();
+
+    }
 }

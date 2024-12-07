@@ -156,6 +156,7 @@ public class EPD_EVALUABLE_2 {
         double[][] distancias = inicializarMatrizDistanciaDesdeTSP(file);
 
         // Medir el tiempo de ejecución y calcular el coste para el algoritmo voraz 
+        System.out.println("\n---- Algoritmo Voraz ----");
         long inicio = System.nanoTime();
         int[] caminoVoraz = algVoraz(distancias);  // Aquí se llama al algoritmo voraz
         long fin = System.nanoTime();

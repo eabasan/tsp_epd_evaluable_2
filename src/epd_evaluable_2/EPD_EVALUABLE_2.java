@@ -73,22 +73,6 @@ public class EPD_EVALUABLE_2 {
         return coste;
     }
 
-    // Genera un tour aleatorio inicial
-    public static int[] getTour(int NMaxCiudades) {
-        int[] tour = new int[NMaxCiudades];
-        for (int i = 0; i < NMaxCiudades; i++) {
-            tour[i] = i;
-        }
-        Random random = new Random();
-        // Barajar el tour de manera aleatoria
-        for (int i = NMaxCiudades - 1; i > 0; i--) {
-            int j = random.nextInt(i + 1);
-            int temp = tour[i];
-            tour[i] = tour[j];
-            tour[j] = temp;
-        }
-        return tour;
-    }
 
     public static int[] algVoraz(double[][] distancias) {
         int numCiudades = distancias.length;
@@ -188,14 +172,14 @@ public class EPD_EVALUABLE_2 {
 
     public static void main(String[] args) {
         // Ruta relativa al archivo .tsp
-        String file = "src/data/a280.tsp"; // Puedes cambiar la ruta dependiendo del archivo que uses
+        //String file = "src/data/a280.tsp"; // Puedes cambiar la ruta dependiendo del archivo que uses
         // Otros ejemplos de rutas de archivos .tsp
-        // String file = "src/data/berlin52.tsp";
-        // String file = "src/data/kroA100.tsp";
-        // String file = "src/data/kroA150.tsp";
-        // String file = "src/data/kroA200.tsp";
-        // String file = "src/data/vm1084.tsp";
-        // String file = "src/data/vm1748.tsp";
+        //String file = "src/data/berlin52.tsp";
+        //String file = "src/data/kroA100.tsp";
+        //String file = "src/data/kroA150.tsp";
+        //String file = "src/data/kroA200.tsp";
+        //String file = "src/data/vm1084.tsp";
+        String file = "src/data/vm1748.tsp";
 
         // Inicializar la matriz de distancias desde el archivo TSP
         double[][] distancias = inicializarMatrizDistanciaDesdeTSP(file);

@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -73,6 +74,22 @@ public class EPD_EVALUABLE_2 {
         return coste;
     }
 
+    // Genera un tour aleatorio inicial
+    public static int[] getTour(int NMaxCiudades) {
+        int[] tour = new int[NMaxCiudades];
+        for (int i = 0; i < NMaxCiudades; i++) {
+            tour[i] = i;
+        }
+        Random random = new Random(12345);
+        // Barajar el tour de manera aleatoria
+        for (int i = NMaxCiudades - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            int temp = tour[i];
+            tour[i] = tour[j];
+            tour[j] = temp;
+        }
+        return tour;
+    }
 
     public static int[] algVoraz(double[][] distancias) {
         int numCiudades = distancias.length;
@@ -170,6 +187,54 @@ public class EPD_EVALUABLE_2 {
         return camino; //Devolvemos el camino combinado
     }
 
+    // El algoritmo BA1 ejecuta iteraciones con caminos aleatorios y guarda la mejor solución
+    public static int[] algoritmoAleatorioBA1(double[][] distancias, int iteraciones) {
+        int NMaxCiudades = distancias.length;
+        int[] mejorCamino = getTour(NMaxCiudades); // Camino inicial aleatorio
+        double mejorCoste = getDistanciaTotal(distancias, mejorCamino);
+
+        for (int i = 0; i < iteraciones; i++) {
+            int[] caminoActual = getTour(NMaxCiudades);
+            double costeActual = getDistanciaTotal(distancias, caminoActual);
+            // Si el camino actual es mejor, lo guardamos
+            if (costeActual < mejorCoste) {
+                mejorCamino = caminoActual;
+                mejorCoste = costeActual;
+            }
+        }
+        System.out.println("Mejor camino: " + Arrays.toString(mejorCamino) + "\nCon coste " + mejorCoste);
+        return mejorCamino;
+    }
+
+    // El algoritmo BA2 ejecuta iteraciones hasta que alcanza un máximo sin mejora
+    public static int[] algoritmoAleatorioBA2(double[][] distancias, int maxIteraciones, int maxIterSinMejora) {
+        int NMaxCiudades = distancias.length;
+        int[] mejorCamino = getTour(NMaxCiudades);// Camino inicial aleatorio
+        double mejorCoste = getDistanciaTotal(distancias, mejorCamino);
+        int iterSinMejora = 0; //Contador de iteraciones sin mejora
+
+        for (int i = 0; i < maxIteraciones; i++) {
+            int[] caminoActual = getTour(NMaxCiudades);
+            double costeActual = getDistanciaTotal(distancias, caminoActual);
+            // Si el camino actual mejora la solución, actualizamos la mejor
+            if (costeActual < mejorCoste) {
+                mejorCamino = caminoActual;
+                mejorCoste = costeActual;
+                iterSinMejora = 0; // Reiniciar el contador si hay mejora
+            } else {
+                iterSinMejora++;
+            }
+            // Parar si se alcanzó el máximo de iteraciones sin mejora
+            if (iterSinMejora >= maxIterSinMejora) {
+                System.out.println("Parando por falta de mejoras tras " + maxIterSinMejora + " iteraciones.");
+                break;
+            }
+        }
+
+        System.out.println("Mejor camino encontrado: " + Arrays.toString(mejorCamino) + "\nCon coste " + mejorCoste);
+        return mejorCamino;
+    }
+
     public static void main(String[] args) {
         // Ruta relativa al archivo .tsp
         //String file = "src/data/a280.tsp"; // Puedes cambiar la ruta dependiendo del archivo que uses
@@ -178,11 +243,14 @@ public class EPD_EVALUABLE_2 {
         //String file = "src/data/kroA100.tsp";
         //String file = "src/data/kroA150.tsp";
         //String file = "src/data/kroA200.tsp";
-        //String file = "src/data/vm1084.tsp";
-        String file = "src/data/vm1748.tsp";
+        String file = "src/data/vm1084.tsp";
+        //String file = "src/data/vm1748.tsp";
 
         // Inicializar la matriz de distancias desde el archivo TSP
         double[][] distancias = inicializarMatrizDistanciaDesdeTSP(file);
+
+        int[] n = {100, 500, 1000, 5000}; // Valores de iteraciones para BA1
+        int[] p = {50, 100, 250, 500};    // Valores de iteraciones sin mejora para BA2
 
         // Medir el tiempo de ejecución y calcular el coste para el algoritmo voraz 
         System.out.println("\n---- Algoritmo Voraz ----");
@@ -214,6 +282,30 @@ public class EPD_EVALUABLE_2 {
             System.out.print(ciudad + " ");
         }
         System.out.println();
+
+        // Ejecutar BA1 con diferentes valores de iteraciones y medir el tiempo
+        System.out.println("\n---- Algoritmo BA1 ----");
+        for (int maxIteraciones : n) {
+            System.out.println("\nBA1 - Iteraciones: " + maxIteraciones);
+            long inicioBA1 = System.nanoTime();
+            algoritmoAleatorioBA1(distancias, maxIteraciones);
+            long finBA1 = System.nanoTime();
+            long tiempoTotalBA1 = (finBA1 - inicioBA1) / 1000000;
+            System.out.println("Tiempo de ejecución: " + tiempoTotalBA1 + " ms");
+            System.out.println("------------------------");
+        }
+
+        // Ejecutar BA2 con diferentes valores de iteraciones sin mejora y medir el tiempo
+        System.out.println("\n---- Algoritmo BA2 ----");
+        for (int maxIterSinMejora : p) {
+            System.out.println("\nBA2 - p (Iteraciones sin mejora): " + maxIterSinMejora);
+            long inicioBA2 = System.nanoTime();
+            algoritmoAleatorioBA2(distancias, 5000, maxIterSinMejora);  //maxIteraciones limita la ejecución a 5000 iteraciones si no se cumple antes el criterio de p.
+            long finBA2 = System.nanoTime();
+            long tiempoTotalBA2 = (finBA2 - inicioBA2) / 1000000; // Convertir a milisegundos
+            System.out.println("Tiempo de ejecución: " + tiempoTotalBA2 + " ms");
+            System.out.println("------------------------");
+        }
 
     }
 

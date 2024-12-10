@@ -273,7 +273,7 @@ public class EPD_EVALUABLE_2 {
                 System.out.println("Camino BA1: " + java.util.Arrays.toString(caminoBA1));
                 for (int i = 0; i < 5; i++) { // Repetir la ejecución para obtener promedios
                     long inicioBA1 = System.nanoTime();
-                    long finBA1 = System.nanoTime(); // Nota: No se recalcula el camino
+                    long finBA1 = System.nanoTime();
                     tiemposBA1.add((finBA1 - inicioBA1) / 1000000.0); // Tiempo en milisegundos
                     costesBA1.add(getDistanciaTotal(distancias, caminoBA1));
                 }

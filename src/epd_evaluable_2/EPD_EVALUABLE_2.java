@@ -28,15 +28,15 @@ public class EPD_EVALUABLE_2 {
                     if (line.equals("EOF")) {
                         break; // Fin del archivo
                     }
-                    String[] parts = line.split("\\s+"); // Divide la línea por espacios
-                    int id = Integer.parseInt(parts[0]); // Identificador de la ciudad (no se usa directamente)
+                    String[] parts = line.split("\\s+"); 
+                    int id = Integer.parseInt(parts[0]);
                     double x = Double.parseDouble(parts[1]); // Coordenada X
                     double y = Double.parseDouble(parts[2]); // Coordenada Y
                     ciudades.add(new double[]{id, x, y}); // Almacena las coordenadas en la lista
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace(); // Manejo de errores de lectura
+            e.printStackTrace();
         }
 
         int numCiudades = ciudades.size(); // Número total de ciudades
@@ -56,7 +56,7 @@ public class EPD_EVALUABLE_2 {
         return Math.sqrt(Math.pow(ciudad1[1] - ciudad2[1], 2) + Math.pow(ciudad1[2] - ciudad2[2], 2));
     }
 
-    // Calcula el coste total de un camino completo dado por un arreglo de índices de ciudades
+    // Calcula el coste total
     public static double getDistanciaTotal(double[][] distancias, int[] camino) {
         double coste = 0;
         for (int i = 0; i < camino.length - 1; i++) {
@@ -70,23 +70,22 @@ public class EPD_EVALUABLE_2 {
     public static int[] getTour(int NMaxCiudades) {
         int[] tour = new int[NMaxCiudades];
         for (int i = 0; i < NMaxCiudades; i++) {
-            tour[i] = i; // Inicializa el tour con índices consecutivos
+            tour[i] = i;
         }
         Random random = new Random(12345); // Generador de números aleatorios con semilla fija
-        // Baraja los elementos del tour usando el algoritmo de Fisher-Yates
         for (int i = NMaxCiudades - 1; i > 0; i--) {
             int j = random.nextInt(i + 1);
             int temp = tour[i];
             tour[i] = tour[j];
             tour[j] = temp;
         }
-        return tour; // Devuelve el tour aleatorio
+        return tour;
     }
 
     // Implementa el algoritmo voraz para resolver el problema del TSP
     public static int[] algVoraz(double[][] distancias) {
         int numCiudades = distancias.length; // Número total de ciudades
-        boolean[] visitadas = new boolean[numCiudades]; // Marca las ciudades visitadas
+        boolean[] visitadas = new boolean[numCiudades];
         int[] camino = new int[numCiudades]; // Almacena el camino resultante
 
         int actual = 0; // Comienza en la primera ciudad
@@ -144,11 +143,11 @@ public class EPD_EVALUABLE_2 {
 
         int[] camino = new int[n + m]; // Almacena el camino combinado
         int index = 0;
-        // Añade las ciudades de la parte izquierda hasta el punto óptimo
+        // Añade las ciudades de la parte izquierda
         for (int i = 0; i <= mejorIzq; i++) {
             camino[index++] = parteIzquierda[i];
         }
-        // Añade las ciudades de la parte derecha a partir del punto óptimo
+        // Añade las ciudades de la parte derecha
         for (int j = mejorDer; j < m; j++) {
             camino[index++] = parteDerecha[j];
         }
@@ -222,12 +221,6 @@ public class EPD_EVALUABLE_2 {
         File folder = new File(folderPath);
         File[] files = folder.listFiles(); // Obtener la lista de archivos en la carpeta
 
-        // Verificar si la carpeta está vacía o no contiene archivos
-        if (files == null || files.length == 0) {
-            System.out.println("No se encontraron archivos en la carpeta: " + folderPath);
-            return;
-        }
-
         // Procesar cada archivo en la carpeta
         for (File file : files) {
             String filePath = file.getPath(); // Obtener la ruta completa del archivo
@@ -248,7 +241,7 @@ public class EPD_EVALUABLE_2 {
             System.out.println("Camino Voraz: " + java.util.Arrays.toString(caminoVoraz));
             for (int i = 0; i < 5; i++) { // Repetir la ejecución para obtener promedios
                 long inicio = System.nanoTime();
-                long fin = System.nanoTime(); // Nota: No se recalcula el camino
+                long fin = System.nanoTime();
                 tiemposVoraz.add((fin - inicio) / 1000000.0); // Tiempo en milisegundos
                 costesVoraz.add(getDistanciaTotal(distancias, caminoVoraz));
             }
@@ -263,7 +256,7 @@ public class EPD_EVALUABLE_2 {
             System.out.println("Camino Divide y Venceras: " + java.util.Arrays.toString(caminoDivide));
             for (int i = 0; i < 5; i++) { // Repetir la ejecución para obtener promedios
                 long inicio = System.nanoTime();
-                long fin = System.nanoTime(); // Nota: No se recalcula el camino
+                long fin = System.nanoTime();
                 tiemposDivide.add((fin - inicio) / 1000000.0); // Tiempo en milisegundos
                 costesDivide.add(getDistanciaTotal(distancias, caminoDivide));
             }
@@ -298,7 +291,7 @@ public class EPD_EVALUABLE_2 {
                 System.out.println("Camino BA2: " + java.util.Arrays.toString(caminoBA2));
                 for (int i = 0; i < 5; i++) { // Repetir la ejecución para obtener promedios
                     long inicioBA2 = System.nanoTime();
-                    long finBA2 = System.nanoTime(); // Nota: No se recalcula el camino
+                    long finBA2 = System.nanoTime();
                     tiemposBA2.add((finBA2 - inicioBA2) / 1000000.0); // Tiempo en milisegundos
                     costesBA2.add(getDistanciaTotal(distancias, caminoBA2));
                 }

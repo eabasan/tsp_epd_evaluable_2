@@ -24,7 +24,6 @@ public class EPD_EVALUABLE_2 {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             boolean isCoordSection = false;
-            System.out.println("Leyendo archivo TSP: " + file);
             while ((line = br.readLine()) != null) {
                 line = line.trim();
 
